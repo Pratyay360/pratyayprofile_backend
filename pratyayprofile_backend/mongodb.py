@@ -2,7 +2,7 @@ import os
 from typing import Dict
 
 from dotenv import load_dotenv
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
 
@@ -11,12 +11,12 @@ load_dotenv()
 
 class MongoConnectionManager:
     def __init__(self):
-        self._clients: Dict[str, MongoClient] = {}
+        self._clients: Dict[str, AsyncIOMotorClient] = {}
         self.uri = os.environ.get("MONGODB_URL")
         if not self.uri:
             raise ValueError("MONGODB_URL environment variable is not set")
 
-        self.client = MongoClient(
+        self.client = AsyncIOMotorClient(
             self.uri,
             server_api=ServerApi(version="1", strict=True, deprecation_errors=True),
             maxPoolSize=50,
@@ -39,10 +39,10 @@ class MongoConnectionManager:
         if self.client:
             self.client.close()
 
-    def ping(self):
+    async def ping(self):
         """Test the connection to the MongoDB server."""
         try:
-            self.client.admin.command("ping")
+            await self.client.admin.command("ping")
             return True
         except PyMongoError as e:
             print(f"Failed to ping MongoDB: {e}")
@@ -72,8 +72,8 @@ class LazyConnectionManager:
             temp_instance = MongoConnectionManager()
             return temp_instance.close_connection()
 
-    def ping(self):
-        return self._get_instance().ping()
+    async def ping(self):
+        return await self._get_instance().ping()
 
 
 # Create a lazy-loaded instance

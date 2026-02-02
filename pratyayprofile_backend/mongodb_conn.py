@@ -11,30 +11,30 @@ from mongodb import connection_manager
 load_dotenv()
 
 
-def post_data(databaseName: str, collection_name: str, data: Dict[str, Any]):
+async def post_data(databaseName: str, collection_name: str, data: Dict[str, Any]):
     try:
         collection = connection_manager.get_collection(databaseName, collection_name)
-        result = collection.insert_one(data)
+        result = await collection.insert_one(data)
         return result
     except PyMongoError as e:
         print(f"An error occurred while inserting data: {e}")
         raise
 
 
-def get_data(databaseName: str, collection_name: str, query: dict = {}):
+async def get_data(databaseName: str, collection_name: str, query: dict = {}):
     try:
         collection = connection_manager.get_collection(databaseName, collection_name)
         if query:
-            result = collection.find_one(query)
+            result = await collection.find_one(query)
         else:
-            result = collection.find_one()
+            result = await collection.find_one()
         return result
     except PyMongoError as e:
         print(f"An error occurred while fetching data: {e}")
         raise
 
 
-def get_multiple_data(
+async def get_multiple_data(
     databaseName: str, collection_name: str, query: dict = {}, limit: int = None
 ):
     try:
@@ -42,27 +42,31 @@ def get_multiple_data(
         cursor = collection.find(query) if query else collection.find()
         if limit:
             cursor = cursor.limit(limit)
-        result = list(cursor)
+
+        # Use async comprehension to convert cursor to list
+        result = [doc async for doc in cursor]
         return result
     except PyMongoError as e:
         print(f"An error occurred while fetching multiple data: {e}")
         raise
 
 
-def data_update(databaseName: str, collection_name: str, filter: Dict, update: Dict):
+async def data_update(
+    databaseName: str, collection_name: str, filter: Dict, update: Dict
+):
     try:
         collection = connection_manager.get_collection(databaseName, collection_name)
-        result = collection.update_one(filter, update)
+        result = await collection.update_one(filter, update)
         return result
     except PyMongoError as e:
         print(f"An error occurred while updating data: {e}")
         raise
 
 
-def data_delete(databaseName: str, collection_name: str, filter: Dict):
+async def data_delete(databaseName: str, collection_name: str, filter: Dict):
     try:
         collection = connection_manager.get_collection(databaseName, collection_name)
-        result = collection.delete_one(filter)
+        result = await collection.delete_one(filter)
         return result
     except PyMongoError as e:
         print(f"An error occurred while deleting data: {e}")
@@ -116,33 +120,31 @@ async def getBlogs(num: int = 10):
         raise
 
 
-def message_send(databaseName: str, collection_name: str, data: Dict[str, Any]):
+async def message_send(databaseName: str, collection_name: str, data: Dict[str, Any]):
     try:
         collection = connection_manager.get_collection(databaseName, collection_name)
-        result = collection.insert_one(data)
+        result = await collection.insert_one(data)
         return result
     except PyMongoError as e:
         print(f"An error occurred while sending message: {e}")
         raise
 
 
-def message_receive(databaseName: str, collection_name: str, query: dict = None):
+async def message_receive(databaseName: str, collection_name: str, query: dict = None):
     try:
         collection = connection_manager.get_collection(databaseName, collection_name)
-        if query:
-            result = list(collection.find(query))
-        else:
-            result = list(collection.find())
+        cursor = collection.find(query) if query else collection.find()
+        result = [doc async for doc in cursor]
         return result
     except PyMongoError as e:
         print(f"An error occurred while receiving message: {e}")
         raise
 
 
-def message_delete(databaseName: str, collection_name: str, id: ObjectId):
+async def message_delete(databaseName: str, collection_name: str, id: ObjectId):
     try:
         collection = connection_manager.get_collection(databaseName, collection_name)
-        result = collection.delete_one({"_id": id})
+        result = await collection.delete_one({"_id": id})
         return result
     except PyMongoError as e:
         print(f"An error occurred while deleting message: {e}")
