@@ -1,4 +1,4 @@
-FROM docker.io/python:3.14-slim
+FROM docker.io/python:3.14.2-alpine
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
