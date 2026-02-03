@@ -15,16 +15,6 @@ jobs:
 
     steps:
       - name: GHCR-Action
-  # You may pin to the exact commit or the version.
-  # uses: KuhlTime/ghcr-action@0dad245b5759201214ba1cfac9cafb104f638fc8
         uses: KuhlTime/ghcr-action@v2
         with:
-    # The GitHub token to interact with the registry. Normally 'secrets.GITHUB_TOKEN'
-          token: 
-    # (Optional) List of build-time variables
-          build-args: # optional
-    # Path to the Dockerfile (defaults to Dockerfile)
-          dockerfile: # optional, default is Dockerfile
-    # (Optional) Name of the image to build
-          image-name-overwrite: # optional
-          
+          token: ${{ secrets.GITHUB_TOKEN }}
