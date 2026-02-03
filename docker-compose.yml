@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: searchapi
+    container_name: pratyayprofile_backend
     ports:
-      - "8070:8000"
+      - "3000:3000"
     restart: unless-stopped

@@ -12,8 +12,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      image-name: pratyayprofile_backend
     steps:
+      - name: Create .env from secret
+        run: echo "${{ secrets.ENVS }}" >> .env
       - name: GHCR-Action
         uses: KuhlTime/ghcr-action@v2
         with:
